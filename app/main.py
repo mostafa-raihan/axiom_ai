@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 import sqlite3
 import os
+from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
+from fastapi.responses import HTMLResponse
+
+
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "..", "templates"))
+
 
 app = FastAPI(
     title="Axiom AI",
@@ -104,3 +111,8 @@ def get_titles():
         titles[title] = titles.get(title, 0) + 1
     sorted_titles = dict(sorted(titles.items(), key=lambda x: x[1], reverse=True)[:20])
     return {"top_titles": sorted_titles}
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard():
+    with open(os.path.join(os.path.dirname(__file__), "..", "templates", "index.html")) as f:
+        return HTMLResponse(content=f.read())
